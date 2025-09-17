@@ -1,0 +1,85 @@
+create a navmenu in a modern Design System & Theme
+ * Color Palette:
+   * Primary: #042189 (blue) - For authority, trust, and key actions.
+   * Accent: #fccf03 (yellow) - For warnings, calls to action, and highlights.
+   * Neutral: slate - For backgrounds, text, and borders.
+   * Semantic: emerald for success, red for critical errors/danger, and orange for caution.
+ * Typography: Use the Google Font Inter for all text to ensure excellent readability and a modern aesthetic.
+ * Theming: Apply this color palette and font globally via Tailwind CSS variables, ensuring seamless integration with all 
+
+MDRRMO Website Navigation Structure
+Here is a logical and comprehensive menu list, indicating the main and sub-menu levels.
+
+HOME (Main Menu)
+
+This is the main landing page, which should feature the most critical and timely information, such as active weather alerts, emergency hotlines, and recent news.
+
+ABOUT US (Main Menu)
+
+Mission and Vision (Sub-menu) - The core principles and goals of the MDRRMO.
+
+Mandate & Legal Basis (Sub-menu) - Outlines the office's responsibilities based on laws like R.A. 10121 (The Philippine DRRM Act).
+
+Our Team / Officials (Sub-menu) - Introduces the key personnel and leadership of the office.
+
+Organizational Structure (Sub-menu) - A chart showing the hierarchy and different units within the MDRRMO.
+
+PREPAREDNESS (Main Menu)
+
+This section focuses on information and resources to help the community prepare before a disaster strikes.
+
+Family Emergency Plan (Sub-menu) - Guides on how families can create their own disaster plan.
+
+What's in your Go-Bag? (Sub-menu) - A checklist for an essential emergency survival kit.
+
+Hazard Maps (Sub-menu) - Maps showing areas prone to flooding, landslides, storm surges, etc., within the municipality.
+
+IEC Materials (Sub-menu) - Information, Education, and Communication materials like brochures, posters, and videos on disaster preparedness.
+
+Trainings & Drills (Sub-menu) - Schedule and documentation of community drills and training programs.
+
+WARNINGS & ADVISORIES (Main Menu)
+
+This is one of the most critical sections and should be easily accessible. It contains real-time or near-real-time updates.
+
+Latest Weather Bulletin (Sub-menu) - Updates from PAGASA and other relevant agencies.
+
+Emergency Alerts (Sub-menu) - Specific, localized alerts issued by the MDRRMO (e.g., evacuation notices, hazard warnings).
+
+Suspension of Classes/Work (Sub-menu) - Official announcements regarding suspensions.
+
+Road & Infrastructure Status (Sub-menu) - Advisories on impassable roads, damaged bridges, or power/water interruptions.
+
+RESPONSE & RECOVERY (Main Menu)
+
+This section provides information on what to do during and after a disaster.
+
+Emergency Hotlines (Sub-menu) - A comprehensive list of contact numbers for the MDRRMO, police, fire department, and hospitals.
+
+List of Evacuation Centers (Sub-menu) - Location and status (open/full) of designated evacuation centers.
+
+How to Report an Incident (Sub-menu) - A guide or an online form for residents to report emergencies.
+
+Donations & Relief Operations (Sub-menu) - Information on how to donate or where to receive relief goods.
+
+RESOURCES (Main Menu)
+
+Downloads (Sub-menu) - A repository for important documents like the Municipal DRRM Plan, forms, and relevant laws.
+
+Photo & Video Gallery (Sub-menu) - Documentation of MDRRMO activities, responses, and training events.
+
+Frequently Asked Questions (FAQ) (Sub-menu) - Answers to common questions about disaster preparedness and response.
+
+GET INVOLVED (Main Menu)
+
+Become a Volunteer (Sub-menu) - Information and application process for individuals who want to volunteer.
+
+Partnerships (Sub-menu) - Information for NGOs, private sector companies, and other organizations who wish to partner with the MDRRMO.
+
+CONTACT US (Main Menu)
+
+Contact Information (Sub-menu) - Office address, phone numbers, and official email address.
+
+Location Map (Sub-menu) - An embedded map showing the location of the MDRRMO office.
+
+Directory (Sub-menu) - Contact details for specific departments or key personnel.
