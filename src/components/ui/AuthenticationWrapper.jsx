@@ -1,4 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
+import { useAuth as useSupabaseAuth } from '../../hooks/useAuth';
 
 const AuthContext = createContext({
   isAuthenticated: false,
@@ -17,97 +18,41 @@ export const useAuth = () => {
 };
 
 const AuthenticationWrapper = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      // Check localStorage for auth token
-      const token = localStorage.getItem('mdrrmo_auth_token');
-      const userData = localStorage.getItem('mdrrmo_user_data');
-      
-      if (token && userData) {
-        // Validate token (in real app, this would be an API call)
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (credentials) => {
-    try {
-      setLoading(true);
-      
-      // Simulate API call (replace with actual authentication)
-      const mockUser = {
-        id: '1',
-        name: 'Admin User',
-        email: credentials?.email || 'admin@mdrrmo.gov.ph',
-        role: 'admin',
-        department: 'MDRRMO',
-        permissions: ['dashboard', 'incidents', 'advisories', 'calendar', 'users', 'settings']
-      };
-
-      const mockToken = 'mock_jwt_token_' + Date.now();
-
-      // Store auth data
-      localStorage.setItem('mdrrmo_auth_token', mockToken);
-      localStorage.setItem('mdrrmo_user_data', JSON.stringify(mockUser));
-
-      setUser(mockUser);
-      setIsAuthenticated(true);
-
-      return { success: true, user: mockUser };
-    } catch (error) {
-      console.error('Login failed:', error);
-      return { success: false, error: error?.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      setLoading(true);
-      
-      // Clear auth data
-      localStorage.removeItem('mdrrmo_auth_token');
-      localStorage.removeItem('mdrrmo_user_data');
-
-      setUser(null);
-      setIsAuthenticated(false);
-
-      // Redirect to login
-      window.location.href = '/login';
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { 
+    user, 
+    profile, 
+    loading, 
+    isAuthenticated, 
+    signIn, 
+    signOut, 
+    hasRole 
+  } = useSupabaseAuth();
 
   const contextValue = {
     isAuthenticated,
-    user,
-    login,
-    logout,
-    loading
+    user: profile ? {
+      id: user?.id,
+      name: profile?.full_name || `${profile?.first_name} ${profile?.last_name}`,
+      email: user?.email,
+      role: profile?.role,
+      department: profile?.department || 'MDRRMO',
+      permissions: getPermissionsForRole(profile?.role)
+    } : null,
+    login: signIn,
+    logout: signOut,
+    loading,
+    hasRole
   };
+
+  function getPermissionsForRole(role) {
+    const rolePermissions = {
+      super_admin: ['dashboard', 'incidents', 'advisories', 'calendar', 'users', 'settings', 'resources', 'reports'],
+      admin: ['dashboard', 'incidents', 'advisories', 'calendar', 'users', 'resources', 'reports'],
+      editor: ['dashboard', 'incidents', 'advisories', 'calendar', 'resources'],
+      viewer: ['dashboard']
+    };
+    return rolePermissions?.[role] || ['dashboard'];
+  }
 
   return (
     <AuthContext.Provider value={contextValue}>
@@ -118,7 +63,7 @@ const AuthenticationWrapper = ({ children }) => {
 
 // Protected Route Component
 export const ProtectedRoute = ({ children, requiredPermissions = [] }) => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading, hasRole } = useAuth();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -145,7 +90,7 @@ export const ProtectedRoute = ({ children, requiredPermissions = [] }) => {
   if (requiredPermissions?.length > 0 && user) {
     const hasPermission = requiredPermissions?.some(permission => 
       user?.permissions?.includes(permission)
-    );
+    ) || hasRole(['super_admin', 'admin']);
     
     if (!hasPermission) {
       return (

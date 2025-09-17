@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigation } from '../../hooks/useNavigation';
 import Icon from '../AppIcon';
 import Button from './Button';
 
@@ -6,87 +7,8 @@ const PublicNavigationHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const dropdownRef = useRef(null);
+  const { navigationItems, loading, error } = useNavigation();
 
-  const navigationItems = [
-    { label: 'HOME', path: '/public-homepage', hasDropdown: false },
-    { 
-      label: 'ABOUT US', 
-      path: '/about', 
-      hasDropdown: true,
-      dropdownItems: [
-        { label: 'Our Mission', path: '/about/mission' },
-        { label: 'Leadership Team', path: '/about/team' },
-        { label: 'Organization Chart', path: '/about/organization' },
-        { label: 'History', path: '/about/history' }
-      ]
-    },
-    { 
-      label: 'PREPAREDNESS', 
-      path: '/preparedness', 
-      hasDropdown: true,
-      dropdownItems: [
-        { label: 'Emergency Kits', path: '/preparedness/kits' },
-        { label: 'Family Plans', path: '/preparedness/plans' },
-        { label: 'Training Programs', path: '/preparedness/training' },
-        { label: 'Community Drills', path: '/preparedness/drills' }
-      ]
-    },
-    { 
-      label: 'WARNINGS & ADVISORIES', 
-      path: '/public-advisories', 
-      hasDropdown: true,
-      dropdownItems: [
-        { label: 'Current Alerts', path: '/public-advisories/current' },
-        { label: 'Weather Updates', path: '/public-advisories/weather' },
-        { label: 'Evacuation Orders', path: '/public-advisories/evacuation' },
-        { label: 'Safety Bulletins', path: '/public-advisories/bulletins' }
-      ]
-    },
-    { 
-      label: 'RESPONSE & RECOVERY', 
-      path: '/response', 
-      hasDropdown: true,
-      dropdownItems: [
-        { label: 'Emergency Response', path: '/response/emergency' },
-        { label: 'Recovery Programs', path: '/response/recovery' },
-        { label: 'Relief Operations', path: '/response/relief' },
-        { label: 'Damage Assessment', path: '/response/assessment' }
-      ]
-    }
-  ];
-
-  const moreMenuItems = [
-    { 
-      label: 'RESOURCES', 
-      path: '/resources',
-      dropdownItems: [
-        { label: 'Emergency Contacts', path: '/resources/contacts' },
-        { label: 'Evacuation Centers', path: '/resources/centers' },
-        { label: 'Maps & Routes', path: '/resources/maps' },
-        { label: 'Forms & Documents', path: '/resources/documents' }
-      ]
-    },
-    { 
-      label: 'GET INVOLVED', 
-      path: '/get-involved',
-      dropdownItems: [
-        { label: 'Volunteer Programs', path: '/get-involved/volunteer' },
-        { label: 'Community Groups', path: '/get-involved/groups' },
-        { label: 'Donations', path: '/get-involved/donations' },
-        { label: 'Partnerships', path: '/get-involved/partnerships' }
-      ]
-    },
-    { 
-      label: 'CONTACT US', 
-      path: '/contact',
-      dropdownItems: [
-        { label: 'Office Locations', path: '/contact/locations' },
-        { label: 'Directory', path: '/contact/directory' },
-        { label: 'Feedback', path: '/contact/feedback' },
-        { label: 'Report Incident', path: '/contact/report' }
-      ]
-    }
-  ];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -106,6 +28,64 @@ const PublicNavigationHeader = () => {
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // Transform database navigation items to component format
+  const transformNavigationItems = (items) => {
+    return items?.map(item => ({
+      label: item?.title,
+      path: item?.path,
+      hasDropdown: item?.children?.length > 0,
+      dropdownItems: item?.children?.map(child => ({
+        label: child?.title,
+        path: child?.path
+      }))
+    }));
+  };
+
+  // Split navigation items for main nav and more menu
+  const getNavigationSections = () => {
+    if (loading || error || !navigationItems) {
+      return { mainItems: [], moreItems: [] };
+    }
+
+    const transformed = transformNavigationItems(navigationItems);
+    const mainItems = transformed?.slice(0, 5); // First 5 items for main nav
+    const moreItems = transformed?.slice(5); // Remaining items for "More" menu
+    
+    return { mainItems, moreItems };
+  };
+
+  const { mainItems, moreItems } = getNavigationSections();
+
+  if (loading) {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-1000 bg-white border-b border-border shadow-sm">
+        <div className="bg-error text-error-foreground py-2 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-sm font-medium">
+            <div className="flex items-center space-x-2">
+              <Icon name="AlertTriangle" size={16} />
+              <span>Emergency Hotline: 911 | MDRRMO: (02) 8888-0000</span>
+            </div>
+          </div>
+        </div>
+        <nav className="bg-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <Icon name="Shield" size={24} color="white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-primary">MDRRMO</span>
+                  <span className="text-xs text-muted-foreground">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-1000 bg-white border-b border-border shadow-sm">
@@ -139,7 +119,7 @@ const PublicNavigationHeader = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1" ref={dropdownRef}>
-              {navigationItems?.map((item, index) => (
+              {mainItems?.map((item, index) => (
                 <div key={index} className="relative">
                   {item?.hasDropdown ? (
                     <Button
@@ -189,48 +169,50 @@ const PublicNavigationHeader = () => {
               ))}
 
               {/* More Menu */}
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  className="text-sm font-medium text-foreground hover:text-primary hover:bg-muted px-3 py-2"
-                  onClick={() => handleDropdownToggle('more')}
-                >
-                  MORE
-                  <Icon 
-                    name="ChevronDown" 
-                    size={16} 
-                    className={`ml-1 transition-transform duration-200 ${
-                      activeDropdown === 'more' ? 'rotate-180' : ''
-                    }`} 
-                  />
-                </Button>
+              {moreItems?.length > 0 && (
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    className="text-sm font-medium text-foreground hover:text-primary hover:bg-muted px-3 py-2"
+                    onClick={() => handleDropdownToggle('more')}
+                  >
+                    MORE
+                    <Icon 
+                      name="ChevronDown" 
+                      size={16} 
+                      className={`ml-1 transition-transform duration-200 ${
+                        activeDropdown === 'more' ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </Button>
 
-                {activeDropdown === 'more' && (
-                  <div className="absolute top-full right-0 mt-1 w-64 bg-white border border-border rounded-lg shadow-lg z-1002">
-                    <div className="py-2">
-                      {moreMenuItems?.map((item, index) => (
-                        <div key={index} className="border-b border-border last:border-b-0">
-                          <div className="px-4 py-2 text-sm font-medium text-primary bg-muted/50">
-                            {item?.label}
+                  {activeDropdown === 'more' && (
+                    <div className="absolute top-full right-0 mt-1 w-64 bg-white border border-border rounded-lg shadow-lg z-1002">
+                      <div className="py-2">
+                        {moreItems?.map((item, index) => (
+                          <div key={index} className="border-b border-border last:border-b-0">
+                            <div className="px-4 py-2 text-sm font-medium text-primary bg-muted/50">
+                              {item?.label}
+                            </div>
+                            {item?.dropdownItems?.map((subItem, subIndex) => (
+                              <button
+                                key={subIndex}
+                                className="w-full text-left px-6 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition-colors duration-150"
+                                onClick={() => {
+                                  window.location.href = subItem?.path;
+                                  setActiveDropdown(null);
+                                }}
+                              >
+                                {subItem?.label}
+                              </button>
+                            ))}
                           </div>
-                          {item?.dropdownItems?.map((subItem, subIndex) => (
-                            <button
-                              key={subIndex}
-                              className="w-full text-left px-6 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition-colors duration-150"
-                              onClick={() => {
-                                window.location.href = subItem?.path;
-                                setActiveDropdown(null);
-                              }}
-                            >
-                              {subItem?.label}
-                            </button>
-                          ))}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
               {/* Staff Login */}
               <Button
@@ -275,7 +257,7 @@ const PublicNavigationHeader = () => {
               </div>
 
               {/* Navigation Items */}
-              {[...navigationItems, ...moreMenuItems]?.map((item, index) => (
+              {[...mainItems, ...moreItems]?.map((item, index) => (
                 <div key={index} className="border-b border-border last:border-b-0 pb-2 last:pb-0">
                   <button
                     className="w-full text-left py-2 text-sm font-medium text-foreground hover:text-primary"
